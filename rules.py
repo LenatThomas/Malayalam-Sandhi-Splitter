@@ -1,24 +1,41 @@
 # rules.py
 class Rule:
-    """Class representing a splitting rule."""
+    """Rule class that checks for the condition and applies transformation to it.
+    """
     def __init__(self, precondition, transformation):
-        self.precondition = precondition  # Condition to apply the rule
-        self.transformation = transformation  # Function to transform the word
+        self.precondition = precondition  
+        self.transformation = transformation  
 
     def matches(self, position):
         """Check if the rule is applicable at the given position."""
         return self.precondition(position)
 
     def apply(self, position):
-        """Apply the rule to split the word."""
+        """Apply the transformation to split the word at the given position."""
         return self.transformation(position)
     
     def split(self , position):
+        """Checks the rule at the given position and applies transformation to the given position if the rule holds true.
+
+        Args:
+            position (int): position to check and apply the rule
+
+        Returns:
+            list: List contaning the first and second words after applying the rule. Returns None if no rule can be applied at the given position
+        """
         if self.matches(position):
             return self.apply(position)
         return None
 
 def vowel(symbol):
+    """For a given vowel symbol gives the corresponding vowel.
+
+    Args:
+        symbol (str): vowel symbol string
+
+    Returns:
+        str: vowel str
+    """
     mapping = {
         'ാ'   : 'ആ',
         'ി'   : 'ഇ',
@@ -35,32 +52,75 @@ def vowel(symbol):
     return mapping.get(symbol, '')
 
 def geminate(sound):
+    """Doubles the given sound, making it a geminate
+
+    Args:
+        sound (str): The sound to be doubled
+
+    Returns:
+        str: A string of length 3 containing the geminate sound.
+    """
     if len(sound) == 1:
         return sound + '്' + sound
 
 def singlify(sound):
+    """Strips the geminate sound and gives the base sound
+
+    Args:
+        sound (str): The geminate sound
+
+    Returns:
+        str: The stripped base sound
+    """
     if len(sound) ==3 :
         if sound[0] == sound[2]:
             return sound[0]
         
 def rootify(sound):
+    """For the given compound sound, gives the root sound
+
+    Args:
+        sound (str): The string if length 3 contatining the mixed sound
+
+    Returns:
+        str: The root sound of the compound sound
+    """
     if len(sound) > 0 :
         return sound[-1]
     return sound
             
 def extractCombiSounds(word , pos):
+    """Extracts the combinations sounds from the word. The sound of length 3 is extracted from positions before pos.
+
+    Args:
+        word (str): The word from which the sound is to be extracted
+        pos (int): The position from where the sound is to be extracted.
+
+    Returns:
+        str: A string of length 3 containing the sound
+    """
     if pos < 0 or pos + 1 > len(word):
         return ''
     sound = word[pos -2 : pos +1 ]
     return sound
 
 def isGeminate(sound):
+    """Checks if the given sound is a geminate sound.
+
+    Args:
+        sound (str): The string of length 3 to be checked.
+
+    Returns:
+        bool: Returns True if given sound is geminate sound.
+    """
     if len(sound) == 3:
         return sound[0] == sound[2] and sound[1] == '്'
     return False
 
 
 class SandhiRules :
+    """SandhiRules containes all the sandhi rules requires to split a compound word into individual words
+    """
     def __init__(self):
         self._VOWELS       = ['അ', 'ആ', 'ഇ', 'ഈ', 'ഉ', 'ഊ', 'എ', 'ഏ', 'ഐ', 'ഒ', 'ഓ', 'ഔ']
         self._VOWELSYMBOLS = ['ാ', 'ി', 'ീ', 'ു', 'ൂ', 'െ', 'േ', 'ൈ', 'ൊ', 'ോ', 'ൌ']
@@ -89,6 +149,11 @@ class SandhiRules :
 
 
     def updateWord(self , word):
+        """Update the object with a new word to apply the rules
+
+        Args:
+            word (str): The word to be split
+        """
         self._word = word
 
     def _checkLowerBound(self , pos):
@@ -98,6 +163,14 @@ class SandhiRules :
         return pos + 2 > len(self._word) 
 
     def __getitem__(self, index):
+        """Tries to split the compound word at the given index by applying all the Sandhi rules one by one.
+
+        Args:
+            index (nt): The index of the word to apply the rules
+
+        Returns:
+            list: list containing list of individual splits by applying each Sandhi Rules. Return empty list if no rules apply.
+        """
         if self._checkLowerBound(index):
             return []
         if self._checkUpperBound(index):
@@ -110,6 +183,11 @@ class SandhiRules :
         if results :
             return results
         return []
+
+    """From here onwards are all the functions for Sandhi Rules and Transformations
+    """
+
+
 
     def _sandhi_1(self, pos):
         return self._word[pos - 1] in self._VOWELSYMBOLS
