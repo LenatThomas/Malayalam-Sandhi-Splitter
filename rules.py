@@ -5,17 +5,17 @@ class Rule:
         self.precondition = precondition  # Condition to apply the rule
         self.transformation = transformation  # Function to transform the word
 
-    def matches(self, word, position):
+    def matches(self, position):
         """Check if the rule is applicable at the given position."""
-        return self.precondition(word, position)
+        return self.precondition(position)
 
-    def apply(self, word, position):
+    def apply(self, position):
         """Apply the rule to split the word."""
-        return self.transformation(word, position)
+        return self.transformation(position)
     
-    def split(self , word, position):
-        if self.matches(word = word, position = position):
-            return self.apply(word = word , position = position)
+    def split(self , position):
+        if self.matches(position = position):
+            return self.apply(position = position)
         return None
 
 def vowel(symbol):
@@ -57,156 +57,194 @@ def isGeminate(sound):
         return sound[0] == sound[2] and sound[1] == '്'
     return False
 
-VOWELS       = ['അ', 'ആ', 'ഇ', 'ഈ', 'ഉ', 'ഊ', 'എ', 'ഏ', 'ഐ', 'ഒ', 'ഓ', 'ഔ']
-VOWELSYMBOLS = ['ാ', 'ി', 'ീ', 'ു', 'ൂ', 'െ', 'േ', 'ൈ', 'ൊ', 'ോ', 'ൌ']
-TENSESOUNDS  = ['ക' , 'ച' , 'ട' , 'ത' , 'പ']
-MIXEDSOUNDS  = ['ങ്ക' , 'ഞ്ച' , 'ണ്ട' , 'ന്ത' , 'മ്പ' , 'ങ്ങ']
+
+class SandhiRules :
+    def __init__(self):
+        self._VOWELS       = ['അ', 'ആ', 'ഇ', 'ഈ', 'ഉ', 'ഊ', 'എ', 'ഏ', 'ഐ', 'ഒ', 'ഓ', 'ഔ']
+        self._VOWELSYMBOLS = ['ാ', 'ി', 'ീ', 'ു', 'ൂ', 'െ', 'േ', 'ൈ', 'ൊ', 'ോ', 'ൌ']
+        self._TENSESOUNDS  = ['ക' , 'ച' , 'ട' , 'ത' , 'പ']
+        self._MIXEDSOUNDS  = ['ങ്ക' , 'ഞ്ച' , 'ണ്ട' , 'ന്ത' , 'മ്പ' , 'ങ്ങ']
+        self._word = None
+        self._Rules = [
+            Rule( self._sandhi_1  , self._transi_1  ),
+            Rule( self._sandhi_2  , self._transi_2  ),
+            Rule( self._sandhi_3  , self._transi_3  ),
+            Rule( self._sandhi_4  , self._transi_4  ),
+            Rule( self._sandhi_5  , self._transi_5  ),
+            Rule( self._sandhi_6  , self._transi_6  ),
+            Rule( self._sandhi_7  , self._transi_7  ),
+            Rule( self._sandhi_8  , self._transi_8  ),
+            Rule( self._sandhi_9  , self._transi_9  ),
+            Rule( self._sandhi_10 , self._transi_10 ),
+            Rule( self._sandhi_11 , self._transi_11 ),
+            Rule( self._sandhi_12 , self._transi_12 ),
+            Rule( self._sandhi_13 , self._transi_13 ),
+            Rule( self._sandhi_14 , self._transi_14 ),
+            Rule( self._sandhi_15 , self._transi_15 ),
+            Rule( self._sandhi_16 , self._transi_16 ),
+        ]
 
 
-def checkBound(word , pos):
-    if pos < 0 or pos > len(word):
-        raise ValueError('position out of bound')
 
+    def updateWord(self , word):
+        self._word = word
 
+    def _checkBound(self , pos):
+        if pos < 0 or pos > len(self._word):
+            raise ValueError('position out of bound')
 
+    def __getitem__(self, index):
+        self._checkBound(index)
+        results = []
+        for r in self._Rules:
+            spilts = r.split(index)
+            if spilts is not None :
+                results.append(spilts)
+        return results
 
-
-
-
-
-def sandhi_1(word , pos):
-    return word[pos - 1] in VOWELSYMBOLS
-
-def transi_1(word , pos):
-    checkBound(word , pos)
-    first = word[:pos - 1] + '്'
-    second = vowel(word[pos - 1]) + word[pos:]
-    return [first , second]
-
-def sandhi_2(word , pos) :
-    return word[:pos - 1] == 'അല്ല' or word[:pos -1] == 'ഇല്ല'
-
-def transi_2(word , pos) :
-    checkBound(word , pos)
-    first = word[:pos - 1]
-    second = vowel(word[pos - 1]) + word[pos:]
-    return [first , second]
-
-def sandhi_3(word , pos):
-    return (word[pos - 1] not in ['ു' , 'ൂ'] and word[pos] == 'യ') or (word[pos - 1] in ['ു' , 'ൂ'] and word[pos] == 'വ')
-
-def transi_3(word , pos):
-    checkBound(word , pos)
-    first = word[:pos]
-    second = vowel(word[pos+1]) + word[pos+2:]
-    return [first , second]
-
-def sandhi_4(word , pos):
-    return word[pos- 1] == 'ാ'
-
-def transi_4(word , pos):
-    checkBound(word , pos)
-    first = word[:pos-1]
-    second = word[pos:]
-    return [first , second]
-
-def sandhi_5(word , pos):
-    return word[pos- 1] == 'മ'
-
-def transi_5(word , pos):
-    checkBound(word , pos)
-    first = word[:pos-1] + 'ം'
-    second = vowel(word[pos]) + word[pos+1:]
-    return [first , second]
-
-def sandhi_6(word , pos):
-    sound = extractCombiSounds(word , pos)
-    return sound == 'ത്ത'
+    def _sandhi_1(self, pos):
+        return self._word[pos - 1] in self._VOWELSYMBOLS
     
-def transi_6(word , pos):
-    checkBound(word , pos)
-    first = word[:pos-2] + 'ം'
-    second = vowel(word[pos+1]) + word[pos+2:]
-    return [first , second]
+    def _transi_1(self, pos):
+        first = self._word[:pos - 1] + '്'
+        second = vowel(self._word[pos - 1]) + self._word[pos:]
+        return [first , second]
+    
+    def _sandhi_2(self, pos) :
+        return self._word[:pos - 1] == 'അല്ല' or self._word[:pos -1] == 'ഇല്ല'
+    
+    def _transi_2(self, pos) :
+        first = self._word[:pos - 1]
+        second = vowel(self._word[pos - 1]) + self._word[pos:]
+        return [first , second]
+    
+    def _sandhi_3(self, pos):
+        return (self._word[pos - 1] not in ['ു' , 'ൂ'] and self._word[pos] == 'യ') or (self._word[pos - 1] in ['ു' , 'ൂ'] and self._word[pos] == 'വ')
+    
+    def _transi_3(self, pos):
+        first = self._word[:pos]
+        second = vowel(self._word[pos+1]) + self._word[pos+2:]
+        return [first , second]
+    
+    def _sandhi_4(self, pos):
+        return self._word[pos- 1] == 'ാ'
+    
+    def _transi_4(self, pos):
+        first = self._word[:pos-1]
+        second = self._word[pos:]
+        return [first , second]
+    
+    def _sandhi_5(self, pos):
+        return self._word[pos- 1] == 'മ'
+    
+    def _transi_5(self, pos):
+        first = self._word[:pos-1] + 'ം'
+        second = vowel(self._word[pos]) + self._word[pos+1:]
+        return [first , second]
+    
+    def _sandhi_6(self, pos):
+        sound = extractCombiSounds(self._word , pos)
+        return sound == 'ത്ത'
+        
+    def _transi_6(self, pos):
+        first = self._word[:pos-2] + 'ം'
+        second = vowel(self._word[pos+1]) + self._word[pos+2:]
+        return [first , second]
+    
+    def _sandhi_7(self, pos):
+        sound = extractCombiSounds(self._word , pos)
+        return isGeminate(sound) and self._word[pos-3] in self._TENSESOUNDS
+    
+    def _transi_7(self, pos):
+        sound = extractCombiSounds(self._word , pos)
+        first = self._word[:pos-2]
+        second = singlify(sound) + self._word[pos + 1:]
+        return [first , second]
+    
+    def _sandhi_8(self, pos):
+        sound = extractCombiSounds(self._word , pos)
+        return isGeminate(sound) and self._word[pos-3] not in self._TENSESOUNDS
+    
+    def _transi_8(self, pos):
+        sound = extractCombiSounds(self._word , pos)
+        first = self._word[:pos-2] + 'ം'
+        second = singlify(sound) + self._word[pos + 1:]
+        return [first , second]
+    
+    def _sandhi_9(self, pos):
+        sound = extractCombiSounds(self._word , pos)
+        return sound in self._MIXEDSOUNDS
+    
+    def _transi_9(self, word, pos):
+        sound = extractCombiSounds(self._word , pos)
+        first = self._word[:pos-2] + 'ം'
+        second = rootify(sound) + self._word[pos+1:]
+        return [first , second]
+    
+    def _sandhi_10(self, pos):
+        sound = extractCombiSounds(self._word , pos)
+        return sound == 'ട്ട' or sound == 'റ്റ'
+    
+    def _transi_10(self , word, pos):
+        sound = extractCombiSounds(self._word, pos)
+        first = self._word[:pos-2] + rootify(sound) + '്'
+        second = vowel(self._word[pos+1]) + self._word[pos+2:]
+        return [first , second]
+    
+    def _sandhi_11(self, pos):
+        return self._word[pos - 1] == 'ോ'
+    
+    def _transi_11(self, pos):
+        first = self._word[:pos-1] + 'സ്'
+        second = self._word[pos:]
+        return [first , second]
+    
+    def _sandhi_12(self, pos):
+        sound = extractCombiSounds(self._word , pos)
+        return isGeminate(sound) and self._word[pos - 3] in self._VOWELS
+    
+    def _transi_12(self, pos):
+        sound = extractCombiSounds(self._word , pos)
+        first = self._word[pos-3]
+        second = singlify(sound) + self._word[pos+1:]
+        return [first , second]
+    
+    def _sandhi_13(self, pos) :
+        return self._word[:pos - 1] == 'ആയി' or self._word[:pos -1] == 'പോയി'
+    
+    def _transi_13(self, pos) :
+        first = self._word[:pos - 1]
+        second = vowel(self._word[pos - 1]) + self._word[pos:]
+        return [first , second]
+    
+    def _sandhi_14(self, pos) :
+        return self._word[:pos - 1] == 'ഒരാ'
+    
+    def _transi_14(self, pos) :
+        first = self._word[:pos - 2] + 'ു'
+        second = vowel(self._word[pos - 1]) + self._word[pos:]
+        return [first , second]
+    
+    def _sandhi_15(self, pos) :
+        sound = extractCombiSounds(self._word,pos-2)
+        return self._word[pos - 1] in self._VOWELSYMBOLS and not isGeminate(sound)
+    
+    def _transi_15(self, pos) :
+        first  = self._word[:pos]
+        sound = extractCombiSounds(self._word , pos+2)
+        if isGeminate(sound):
+            second = self._word[pos+2:]
+        else : 
+            second = self._word[pos:]
+        return [first, second]
+    
+    def _sandhi_16(self, pos):
+        sound = extractCombiSounds(self._word , pos)
+        return isGeminate(sound) and self._word[pos - 3] in self._VOWELSYMBOLS
+    
+    def _transi_16(self, pos):
+        sound = extractCombiSounds(self._word , pos)
+        first = self._word[:pos-2]
+        second = singlify(sound) + self._word[pos + 1:]
+        return [first , second]
 
-def sandhi_7(word , pos):
-    sound = extractCombiSounds(word , pos)
-    return isGeminate(sound) and word[pos-3] in TENSESOUNDS
-
-def transi_7(word , pos):
-    checkBound(word , pos)
-    sound = extractCombiSounds(word , pos)
-    first = word[:pos-2]
-    second = singlify(sound) + word[pos + 1:]
-    return [first , second]
-
-def sandhi_8(word , pos):
-    sound = extractCombiSounds(word , pos)
-    return isGeminate(sound) and word[pos-3] not in TENSESOUNDS
-
-def transi_8(word , pos):
-    checkBound(word , pos)
-    sound = extractCombiSounds(word , pos)
-    first = word[:pos-2] + 'ം'
-    second = singlify(sound) + word[pos + 1:]
-    return [first , second]
-
-def sandhi_9(word , pos):
-    sound = extractCombiSounds(word , pos)
-    return sound in MIXEDSOUNDS
-
-def transi_9(word, pos):
-    checkBound(word , pos)
-    sound = extractCombiSounds(word , pos)
-    first = word[:pos-2] + 'ം'
-    second = rootify(sound) + word[pos+1:]
-    return [first , second]
-
-def sandhi_10(word , pos):
-    sound = extractCombiSounds(word , pos)
-    return sound == 'ട്ട' or sound == 'റ്റ'
-
-def transi_10(word, pos):
-    checkBound(word, pos)
-    sound = extractCombiSounds(word, pos)
-    first = word[:pos-2] + rootify(sound) + '്'
-    second = vowel(word[pos+1]) + word[pos+2:]
-    return [first , second]
-
-def sandhi_11(word , pos):
-    return word[pos - 1] == 'ോ'
-
-def transi_11(word , pos):
-    checkBound(word , pos)
-    first = word[:pos-1] + 'സ്'
-    second = word[pos:]
-    return [first , second]
-
-def sandhi_12(word, pos):
-    sound = extractCombiSounds(word , pos)
-    return isGeminate(sound) and word[pos - 3] in VOWELS
-
-def transi_12(word , pos):
-    checkBound(word, pos)
-    sound = extractCombiSounds(word , pos)
-    first = word[pos-3]
-    second = singlify(sound) + word[pos+1:]
-    return [first , second]
-
-def sandhi_13(word , pos) :
-    return word[:pos - 1] == 'ആയി' or word[:pos -1] == 'പോയി'
-
-def transi_13(word , pos) :
-    checkBound(word , pos)
-    first = word[:pos - 1]
-    second = vowel(word[pos - 1]) + word[pos:]
-    return [first , second]
-
-def sandhi_14(word , pos) :
-    return word[:pos - 1] == 'ഒരാ'
-
-def transi_14(word , pos) :
-    checkBound(word , pos)
-    first = word[:pos - 2] + 'ു'
-    second = vowel(word[pos - 1]) + word[pos:]
-    return [first , second]
