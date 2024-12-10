@@ -49,6 +49,8 @@ def rootify(sound):
     return sound
             
 def extractCombiSounds(word , pos):
+    if pos < 0 or pos + 1 > len(word):
+        return ''
     sound = word[pos -2 : pos +1 ]
     return sound
 
