@@ -34,6 +34,25 @@ def vowel(symbol):
     }
     return mapping.get(symbol, '')
 
+def geminate(sound):
+    if len(sound) == 1:
+        return sound + '്' + sound
+
+def singleton(sound):
+    if len(sound) ==3 :
+        if sound[0] == sound[2]:
+            return sound[0]
+        
+def equalGeminates(word , pos , sound):
+    geminateSound = word[pos - 2 : pos + 1]
+    return geminateSound == sound 
+
+def isGeminate(word , pos):
+    sound = word[pos -2 : pos +1 ]
+    if len(sound) == 3:
+        return sound[0] == sound[2] and sound[1] == '്'
+    return False
+
 VOWELS       = ['അ', 'ആ', 'ഇ', 'ഈ', 'ഉ', 'ഊ', 'എ', 'ഏ', 'ഐ', 'ഒ', 'ഓ', 'ഔ']
 VOWELSYMBOLS = ['ാ', 'ി', 'ീ', 'ു', 'ൂ', 'െ', 'േ', 'ൈ', 'ൊ', 'ോ', 'ൌ']
 
@@ -98,13 +117,15 @@ def transi_5(word , pos):
     return [first , second]
 
 def sandhi_6(word , pos):
-    return word[pos-1] == 'ത' and word[pos] == '്' and word[pos+1] == 'ത'
+    return equalGeminates(word , pos , 'ത്ത')
     
 def transi_6(word , pos):
     checkBound(word , pos)
-    first = word[:pos-1] + 'ം'
-    second = vowel(word[pos+2]) + word[pos+3:]
+    first = word[:pos-2] + 'ം'
+    second = vowel(word[pos+1]) + word[pos+2:]
     return [first , second]
+
+# Dwidhi Sandhi
 
 word = 'മരത്തിൽ'
 checkRule = Rule(sandhi_6 , transi_6)
