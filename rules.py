@@ -14,8 +14,8 @@ class Rule:
         return self.transformation(position)
     
     def split(self , position):
-        if self.matches(position = position):
-            return self.apply(position = position)
+        if self.matches(position):
+            return self.apply(position)
         return None
 
 def vowel(symbol):
@@ -100,7 +100,9 @@ class SandhiRules :
             spilts = r.split(index)
             if spilts is not None :
                 results.append(spilts)
-        return results
+        if results :
+            return results
+        return []
 
     def _sandhi_1(self, pos):
         return self._word[pos - 1] in self._VOWELSYMBOLS
@@ -175,7 +177,7 @@ class SandhiRules :
         sound = extractCombiSounds(self._word , pos)
         return sound in self._MIXEDSOUNDS
     
-    def _transi_9(self, word, pos):
+    def _transi_9(self, pos):
         sound = extractCombiSounds(self._word , pos)
         first = self._word[:pos-2] + 'ം'
         second = rootify(sound) + self._word[pos+1:]
