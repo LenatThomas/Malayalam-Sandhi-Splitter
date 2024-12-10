@@ -91,12 +91,17 @@ class SandhiRules :
     def updateWord(self , word):
         self._word = word
 
-    def _checkBound(self , pos):
-        if pos < 0 or pos > len(self._word):
-            raise ValueError('position out of bound')
+    def _checkLowerBound(self , pos):
+        return pos - 1 < 0
+
+    def _checkUpperBound(self , pos):
+        return pos + 2 > len(self._word) 
 
     def __getitem__(self, index):
-        self._checkBound(index)
+        if self._checkLowerBound(index):
+            return []
+        if self._checkUpperBound(index):
+            return []
         results = []
         for r in self._Rules:
             spilts = r.split(index)
@@ -189,7 +194,7 @@ class SandhiRules :
         sound = extractCombiSounds(self._word , pos)
         return sound == 'ട്ട' or sound == 'റ്റ'
     
-    def _transi_10(self , word, pos):
+    def _transi_10(self, pos):
         sound = extractCombiSounds(self._word, pos)
         first = self._word[:pos-2] + rootify(sound) + '്'
         second = vowel(self._word[pos+1]) + self._word[pos+2:]
