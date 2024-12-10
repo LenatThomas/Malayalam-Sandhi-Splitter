@@ -44,10 +44,10 @@ def checkBound(word , pos):
 
 # Lopa Sandhi 
 
-def lopaSandhi(word , pos):
+def sandhi_1(word , pos):
     return word[pos - 1] in VOWELSYMBOLS
 
-def lopaTransi(word , pos):
+def transi_1(word , pos):
     checkBound(word , pos)
     first = word[:pos - 1] + '്'
     second = vowel(word[pos - 1]) + word[pos:]
@@ -55,28 +55,59 @@ def lopaTransi(word , pos):
 
 # Sandhi for handling ല്ല്
 
-def specialSandhi_1(word , pos) :
+def sandhi_2(word , pos) :
     return word[:pos - 1] == 'അല്ല' or word[:pos -1] == 'ഇല്ല'
 
-def specialTransi_1(word , pos) :
+def transi_2(word , pos) :
     checkBound(word , pos)
     first = word[:pos - 1]
     second = vowel(word[pos - 1]) + word[pos:]
     return [first , second]
 
-# Aagama Sandhi
+# Aagama Sandhi 1
 
-def aagamaSandhi(word , pos):
+def sandhi_3(word , pos):
     return (word[pos - 1] not in ['ു' , 'ൂ'] and word[pos] == 'യ') or (word[pos - 1] in ['ു' , 'ൂ'] and word[pos] == 'വ')
 
-def aagamaTransi(word , pos):
+def transi_3(word , pos):
     checkBound(word , pos)
     first = word[:pos]
     second = vowel(word[pos+1]) + word[pos+2:]
     return [first , second]
 
-word = 'മധുവിനെ'
-checkRule = Rule(aagamaSandhi , aagamaTransi)
+# Sandhi for handling ാ
+
+def sandhi_4(word , pos):
+    return word[pos- 1] == 'ാ'
+
+def transi_4(word , pos):
+    checkBound(word , pos)
+    first = word[:pos-1]
+    second = word[pos:]
+    return [first , second]
+
+# Aagama Sandhi 2
+
+def sandhi_5(word , pos):
+    return word[pos- 1] == 'മ'
+
+def transi_5(word , pos):
+    checkBound(word , pos)
+    first = word[:pos-1] + 'ം'
+    second = vowel(word[pos]) + word[pos+1:]
+    return [first , second]
+
+def sandhi_6(word , pos):
+    return word[pos-1] == 'ത' and word[pos] == '്' and word[pos+1] == 'ത'
+    
+def transi_6(word , pos):
+    checkBound(word , pos)
+    first = word[:pos-1] + 'ം'
+    second = vowel(word[pos+2]) + word[pos+3:]
+    return [first , second]
+
+word = 'മരത്തിൽ'
+checkRule = Rule(sandhi_6 , transi_6)
 with open("output.txt", "w", encoding="utf-8") as f:
     f.write(word)
     f.write('\n')
