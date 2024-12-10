@@ -193,3 +193,20 @@ def transi_12(word , pos):
     second = singlify(sound) + word[pos+1:]
     return [first , second]
 
+def sandhi_13(word , pos) :
+    return word[:pos - 1] == 'ആയി' or word[:pos -1] == 'പോയി'
+
+def transi_13(word , pos) :
+    checkBound(word , pos)
+    first = word[:pos - 1]
+    second = vowel(word[pos - 1]) + word[pos:]
+    return [first , second]
+
+def sandhi_14(word , pos) :
+    return word[:pos - 1] == 'ഒരാ'
+
+def transi_14(word , pos) :
+    checkBound(word , pos)
+    first = word[:pos - 2] + 'ു'
+    second = vowel(word[pos - 1]) + word[pos:]
+    return [first , second]
